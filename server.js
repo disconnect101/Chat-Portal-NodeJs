@@ -9,9 +9,12 @@ const server = http.createServer(app);
 const io = socketio(server);
 io.on("connection", (socket) => {
   console.log("Socket connected to: ", socket.conn.remoteAddress);
-  socket.on("message", (data) => {
+  socket.on("message", (data, callback) => {
     console.log(data);
     socket.broadcast.emit("message", data);
+    callback({
+      status: "Ok",
+    });
   });
 });
 
