@@ -1,25 +1,11 @@
-const path = require("path");
-const express = require("express");
-const socketio = require("socket.io");
-const http = require("http");
+const app = require("./app");
+const dotenv = require("dotenv");
 
-const app = express();
-const server = http.createServer(app);
+dotenv.config({ path: "./config.env" });
 
-const io = socketio(server);
-io.on("connection", (socket) => {
-  console.log("Socket connected to: ", socket.conn.remoteAddress);
-  socket.on("message", (data, callback) => {
-    console.log(data);
-    socket.broadcast.emit("message", data);
-    callback({
-      status: "Ok",
-    });
-  });
-});
+const port = process.env.PORT || 5000;
+const server = app.server;
 
-app.use("/", express.static(path.join(__dirname, "public")));
-
-server.listen(3000, () => {
-  console.log("server runing on port 3000...");
+server.listen(port, () => {
+  console.log(`server runing on port ${port}...`);
 });
