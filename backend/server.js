@@ -1,20 +1,11 @@
-const path = require("path");
-const http = require("http");
-const express = require("express");
-const socketio = require("socket.io");
+const app = require("./app");
+const dotenv = require("dotenv");
 
-const WsServerController = require("./controllers/WsServerController");
+dotenv.config({ path: "./config.env" });
 
-const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+const port = process.env.PORT || 5000;
+const server = app.server;
 
-const wsServerController = new WsServerController(io);
-wsServerController.start();
-
-//set static folder
-app.use("/", express.static(path.join(__dirname, "public")));
-
-server.listen(3000, () => {
-  console.log("Listening to port 3000...");
+server.listen(port, () => {
+  console.log(`server runing on port ${port}...`);
 });
