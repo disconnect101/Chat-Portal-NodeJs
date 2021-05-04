@@ -1,21 +1,39 @@
-const WebSocketController = require("./WebSocketController");
+const WebSocketControllers = require("./WebSocketControllers");
 
 class WsServerController {
-  constructor(wsServer) {
-    this.wsServerStatus = {
-      users: [],
-    };
+  constructor(wsServer, wsStreamer) {
     this.wsServer = wsServer;
+    this.wsStreamer = wsStreamer;
+    this.wsServerStatus = { users: [] };
+    this.wsServerConfig = { routes: [] };
+  }
+
+  route(path, WebSocketController) {
+    this.wsServerConfig.routes.push({ path, WebSocketController });
   }
 
   start = () => {
-    this.wsServer.on("connection", this.connectionHandler);
+    ////custom websocket controllers register for their respective paths
+    this.wsServerConfig.routes.forEach(({ path, WebSocketController }) => {
+      this.registerWebSocketController(path, WebSocketController);
+    });
+    ////default websocket controller register
+    this.registerWebSocketController(
+      "/",
+      WebSocketControllers.DefaultWebSocketController
+    );
+
+    this.wsServerConfig.routes.forEach(({ path, WebSocketController }) => {
+      console.log(path, WebSocketController);
+    });
     console.log("WebSocket Server Started...");
   };
 
-  connectionHandler = (socket) => {
-    //console.log(WebSocket);
-    const webSocketController = new WebSocketController(socket, this);
+  registerWebSocketController = (path, WebSocketController) => {
+    this.wsServer.of(path).on("connection", (socket) => {
+      console.log("connection received for path:" + path);
+      const webSocketController = new WebSocketController(socket, this);
+    });
   };
 }
 

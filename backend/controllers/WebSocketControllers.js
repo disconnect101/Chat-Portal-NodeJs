@@ -1,6 +1,7 @@
-const WsServerController = require("./WsServerController");
+const fs = require("fs");
+var path = require("path");
 
-class WebSocketController {
+class DefaultWebSocketController {
   constructor(socket, wsServerController) {
     this.socket = socket;
     this.wsServerController = wsServerController;
@@ -83,4 +84,31 @@ class WebSocketController {
   };
 }
 
-module.exports = WebSocketController;
+class FileTranferWebSocketController {
+  constructor(socket, wsServerController) {
+    this.socket = socket;
+    this.wsServerController = wsServerController;
+    this.wsServerController
+      .wsStreamer(this.socket)
+      .on("fileData", this.fileReceiver);
+    this.botName = "MyChat Bot";
+  }
+
+  fileReceiver = (stream, data) => {
+    console.log("data variable", data);
+    var filename = path.basename(data.name);
+
+    let size = 0;
+    /*stream.on("data", (chunk) => {
+      size += chunk.length;
+      console.log(Math.ceil((size / data.size) * 100));
+    });*/
+    stream.on("end", () => {
+      console.log("end");
+      this.socket.emit("tranfer complete", {});
+    });
+    stream.pipe(fs.createWriteStream(filename));
+  };
+}
+
+module.exports = { DefaultWebSocketController, FileTranferWebSocketController };
