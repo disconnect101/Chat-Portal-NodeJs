@@ -1,32 +1,53 @@
+const chatForm = document.getElementById("chat-form");
+const submit = document.getElementById("submit1");
+const messageInput = document.getElementById("messageInput");
+const chatarea = document.getElementById("chatarea");
+const roomName = document.getElementById("room-name");
+
+//get username and room from URL
+const { username, roomname } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+
 const socket = io();
 
-const submit = document.getElementById("submit");
-const messageInput = document.getElementById("messageInput");
-const textarea = document.getElementById("textarea");
-const body = document.getElementsByTagName("body")[0];
-const statusDiv = document.getElementById("status");
+//join chat room
+socket.emit("joinRoom", { username, roomname });
 
-socket.on("connect", () => {
-  console.log("Socket connected...");
+//get room
+socket.on("roomUsers", ({ roomname }) => {
+  roomName.append("Room Name: " + roomname + "\n");
 });
 
-socket.on("message", (data) => {
-  console.log(data);
-  textarea.append(data.message + "\n");
+//message from server
+socket.on("message", (message) => {
+  console.log(message);
+  // const div = document.createElement('div');
+  // div.innerHTML = `<p> message </p>`;
+  chatarea.append(message.username + " said:\n" + message.text + "\n\n");
+
+  //scroll down
+  chatarea.scrollTop = chatarea.scrollHeight;
 });
 
-submit.addEventListener("click", (e) => {
+//message submit
+chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const message = messageInput.value;
-  if (socket.connected)
-    socket.emit("message", { message: message }, (response) => {
-      statusDiv.innerHTML = `Message is being send...`;
-      setTimeout(function () {
-        if (response.status === "Ok")
-          statusDiv.innerHTML = "Message sent successfully.";
-        else statusDiv.innerHTML = "Message send Failed.";
 
-        textarea.append(message + "\n");
-      }, 1000);
-    });
+  //get message text
+  const message = messageInput.value;
+
+  //emit message to server
+  socket.emit("chatMessage", message);
+
+  //clear input
+  messageInput.value = "";
+  messageInput.focus();
 });
+
+//output msg to dom
+// function outputMessage(message) {
+//     const div = document.createElement('div');
+//     div.innerHTML = `<p> ${message} </p>`;
+//     chatarea.append(div);
+// }
