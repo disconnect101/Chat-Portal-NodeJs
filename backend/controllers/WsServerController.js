@@ -5,7 +5,7 @@ class WsServerController {
     this.wsServer = wsServer;
     this.wsStreamer = wsStreamer;
     this.wsServerStatus = { users: [] };
-    this.wsServerConfig = { routes: [] };
+    this.wsServerConfig = { routes: [], namespaceObjects: [] };
   }
 
   route(path, WebSocketController) {
@@ -17,11 +17,7 @@ class WsServerController {
     this.wsServerConfig.routes.forEach(({ path, WebSocketController }) => {
       this.registerWebSocketController(path, WebSocketController);
     });
-    ////default websocket controller register
-    this.registerWebSocketController(
-      "/",
-      WebSocketControllers.DefaultWebSocketController
-    );
+    //default websocket controller register
 
     this.wsServerConfig.routes.forEach(({ path, WebSocketController }) => {
       console.log(path, WebSocketController);
@@ -30,9 +26,15 @@ class WsServerController {
   };
 
   registerWebSocketController = (path, WebSocketController) => {
-    this.wsServer.of(path).on("connection", (socket) => {
+    const namespaceObject = this.wsServer.of(path);
+    this.wsServerConfig.namespaceObjects.push({ path, namespaceObject });
+    namespaceObject.on("connection", (socket) => {
       console.log("connection received for path:" + path);
-      const webSocketController = new WebSocketController(socket, this);
+      const webSocketController = new WebSocketController(
+        socket,
+        this,
+        namespaceObject
+      );
     });
   };
 }

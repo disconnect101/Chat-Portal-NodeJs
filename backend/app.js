@@ -13,6 +13,10 @@ const io = socketio(server);
 
 const wsServerController = new WsServerController(io, socketioStreamer);
 wsServerController.route(
+  "/groupchat",
+  webSocketControllers.GroupChatWebSocketController
+);
+wsServerController.route(
   "/filetransfer",
   webSocketControllers.FileTranferWebSocketController
 );

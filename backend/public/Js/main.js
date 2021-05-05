@@ -9,9 +9,10 @@ const { username, roomname } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-const socket = io();
+const socket = io("/groupchat");
 
 //join chat room
+
 socket.emit("joinRoom", { username, roomname });
 
 //get room
