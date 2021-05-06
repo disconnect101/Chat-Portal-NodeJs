@@ -1,17 +1,25 @@
 const fs = require("fs");
 var path = require("path");
 
-class DefaultWebSocketController {
-  constructor(socket, wsServerController) {
+// class DefaultWebSocketController {
+//   constructor() {
+//     console.log("Default controller");
+//   }
+// }
+
+class GroupChatWebSocketController {
+  constructor(socket, wsServerController, namespaceObject) {
+    this.namespaceObject = namespaceObject;
     this.socket = socket;
     this.wsServerController = wsServerController;
     this.socket.on("joinRoom", this.joinRoomHandler);
     this.socket.on("chatMessage", this.chatMessageHandler);
-    this.socket.on("discoonect", this.disconnectHandler);
+    this.socket.on("disconnect", this.disconnectHandler);
     this.botName = "MyChat Bot";
   }
 
   joinRoomHandler = ({ username, roomname }) => {
+    console.log("here");
     const user = this.userJoin(this.socket.id, username, roomname);
     this.socket.join(user.roomname);
     //welcome current user
@@ -27,14 +35,14 @@ class DefaultWebSocketController {
         this.formatMessage(this.botName, `${user.username} has joined the chat`)
       );
     //send room info
-    this.wsServerController.wsServer.to(user.roomname).emit("roomUsers", {
+    this.namespaceObject.to(user.roomname).emit("roomUsers", {
       roomname: user.roomname,
     });
   };
 
   chatMessageHandler = (message) => {
     const user = this.getCurrentUser(this.socket.id);
-    this.wsServerController.wsServer
+    this.namespaceObject
       .to(user.roomname)
       .emit("message", this.formatMessage(user.username, message));
   };
@@ -42,7 +50,7 @@ class DefaultWebSocketController {
   disconnectHandler = () => {
     const user = this.userLeave(this.socket.id);
     if (user) {
-      this.wsServerController.wsServer
+      this.namespaceObject
         .to(user.roomname)
         .emit(
           "message",
@@ -85,7 +93,7 @@ class DefaultWebSocketController {
 }
 
 class FileTranferWebSocketController {
-  constructor(socket, wsServerController) {
+  constructor(socket, wsServerController, namespaceObject) {
     this.socket = socket;
     this.wsServerController = wsServerController;
     this.wsServerController
@@ -111,4 +119,7 @@ class FileTranferWebSocketController {
   };
 }
 
-module.exports = { DefaultWebSocketController, FileTranferWebSocketController };
+module.exports = {
+  GroupChatWebSocketController,
+  FileTranferWebSocketController,
+};
