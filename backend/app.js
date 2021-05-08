@@ -21,6 +21,11 @@ wsServerController.route(
   webSocketControllers.FileTranferWebSocketController
 );
 
+wsServerController.route(
+  "/privatechat",
+  webSocketControllers.PrivateChatWebSocketController
+);
+
 wsServerController.start();
 
 //set static folder

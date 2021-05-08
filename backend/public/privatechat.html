@@ -9,18 +9,18 @@
 </head>
 
 <body>
-    <div class="message-area">
-        <h2 id="room-name"></h2>
-        <textarea name="chatarea" id="chatarea" cols="30" rows="10"></textarea>
-        <form id="chat-form" action="">
-            <input type="text" id="messageInput" name="message">
-            <input type="submit" name="submit" id="submit1">
+    <div class="private-message-area">
+        <!--<h2 id="room-name"></h2>-->
+        <textarea name="private-chatarea" id="private-chatarea" cols="30" rows="10"></textarea>
+        <form id="private-chat-form" onsubmit="return sendMessage()">
+            <input type="text" id="private-messageInput" name="message">
+            <input type="submit" name="submit" id="private-submit">
         </form>
     </div>
     <!--<div>-->
     <div class="online-users" style="border: 0.1em;">
         <h3>Members of group chat</h3>
-        <ul id="users"></ul>
+        <ul id="private-users"></ul>
     </div>
     <!--<div class="group-name" style="border: 0.1em;">
             <h3>Group Chats</h3>
@@ -38,6 +38,6 @@
     integrity="sha512-aTKlYRb1QfU1jlF3k+aS4AqTpnTXci4R79mkdie/bp6Xm51O5O3ESAYhvg6zoicj/PD6VYY0XrYwsWLcvGiKZQ=="
     crossorigin="anonymous"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/main.js"></script>
+<script src="/js/privatechat.js"></script>
 
 </html>
