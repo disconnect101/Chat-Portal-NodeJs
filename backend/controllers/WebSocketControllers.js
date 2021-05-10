@@ -1,11 +1,19 @@
 const fs = require("fs");
 var path = require("path");
 
-// class DefaultWebSocketController {
-//   constructor() {
-//     console.log("Default controller");
-//   }
-// }
+/*class GeneralWebSocketController {
+  constructor(socket, wsServerController, namespaceObject) {
+    this.namespaceObject = namespaceObject;
+    this.socket = socket;
+    this.wsServerController = wsServerController;
+
+    this.socket.on("newUserConnected", this.newUserConnected);
+  }
+
+  newUserConnected = () => {
+
+  }
+}*/
 
 class GroupChatWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
@@ -108,10 +116,6 @@ class FileTranferWebSocketController {
     var filename = path.basename(data.name);
 
     let size = 0;
-    /*stream.on("data", (chunk) => {
-      size += chunk.length;
-      console.log(Math.ceil((size / data.size) * 100));
-    });*/
     stream.on("end", () => {
       console.log("end");
       this.socket.emit("tranfer complete", {});
@@ -120,7 +124,7 @@ class FileTranferWebSocketController {
   };
 }
 
-/*class PrivateChatWebSocketController {
+class PrivateChatWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
     this.namespaceObject = namespaceObject;
     this.socket = socket;
@@ -130,20 +134,25 @@ class FileTranferWebSocketController {
     this.socket.on("send_message", this.sendMessageHandler);
   }
 
-  userConnectionHandler = (private_username) => { //attach incoming listerner for new user
+  userConnectionHandler = (private_username) => {
+    //attach incoming listerner for new user
     const socket_id = this.socket.id;
-    const data = { private_username, socket_id }
-    this.wsServerController.wsServerStatus.onlineUsers.push(data);
+    //const data = { private_username, socket_id };
+    this.wsServerController.wsServerStatus.onlineUsers[
+      private_username
+    ] = this.socket.id;
     this.namespaceObject.emit("user_connected", private_username);
-  }
+  };
 
   sendMessageHandler = (data) => {
-    const socketId = this.wsServerController.wsServerStatus.onlineUsers[data.receiver];
+    const socketId = this.wsServerController.wsServerStatus.onlineUsers[
+      data.receiver
+    ];
+    console.log(socketId);
     this.namespaceObject.to(socketId).emit("new_message", data);
-  }
-
-}*/
-
+  };
+}
+/*
 class PrivateChatWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
     //console.log("hello grp chat")
@@ -170,8 +179,6 @@ class PrivateChatWebSocketController {
       this.update_username(user);
     }
 
-
-
     // //Broadcast when a user connects
     // this.socket.broadcast
     //   .to(user.roomname)
@@ -186,7 +193,9 @@ class PrivateChatWebSocketController {
   };
 
   chatMessageHandler = (data) => {
-    const socketId = this.wsServerController.wsServerStatus.onlineUsers[data.receiver];
+    const socketId = this.wsServerController.wsServerStatus.onlineUsers[
+      data.receiver
+    ];
     this.namespaceObject
       .to(socketId)
       .emit("message", this.formatMessage(data.receiver, message));
@@ -206,21 +215,28 @@ class PrivateChatWebSocketController {
 
   //Join user to chat
   userJoin = (id, username) => {
-    if (this.wsServerController.wsServerStatus.namesUsed.indexOf(username) !== -1) {
+    if (
+      this.wsServerController.wsServerStatus.namesUsed.indexOf(username) !== -1
+    ) {
       alert("That name is already taken! Please choose another one");
       return undefined;
     }
 
-    var ind = this.wsServerController.wsServerStatus.namesUsed.push(username) - 1;
+    var ind =
+      this.wsServerController.wsServerStatus.namesUsed.push(username) - 1;
     this.wsServerController.wsServerStatus.clients[ind] = this.socket;
-    this.wsServerController.wsServerStatus.onlineUsers[this.socket.id] = username;
+    this.wsServerController.wsServerStatus.onlineUsers[
+      this.socket.id
+    ] = username;
     return 1;
-
   };
 
   update_username = () => {
-    this.namespaceObject.emit("user_connected", this.wsServerController.wsServerStatus.namesUsed);
-  }
+    this.namespaceObject.emit(
+      "user_connected",
+      this.wsServerController.wsServerStatus.namesUsed
+    );
+  };
 
   //get current user
   // getCurrentUser = (id) => {
@@ -247,9 +263,7 @@ class PrivateChatWebSocketController {
     };
   };
 }
-
-
-
+*/
 module.exports = {
   GroupChatWebSocketController,
   FileTranferWebSocketController,

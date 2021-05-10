@@ -4,7 +4,12 @@ class WsServerController {
   constructor(wsServer, wsStreamer) {
     this.wsServer = wsServer;
     this.wsStreamer = wsStreamer;
-    this.wsServerStatus = { users: [], onlineUsers: {}, namesUsed: [], clients: [] };
+    this.wsServerStatus = {
+      users: [],
+      onlineUsers: {},
+      namesUsed: [],
+      clients: [],
+    };
     this.wsServerConfig = { routes: [], namespaceObjects: [] };
   }
 
