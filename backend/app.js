@@ -7,6 +7,7 @@ const cors = require("cors");
 
 const WsServerController = require("./controllers/WsServerController");
 const webSocketControllers = require("./controllers/WebSocketControllers");
+const { onlineUserAPI } = require("./api/onlineusersapi")
 
 const app = express();
 const server = http.createServer(app);
@@ -34,9 +35,7 @@ wsServerController.start();
 //set static folder
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/api/getconnectedusers", (req, res, next) => {
-  const connectedUsers = wsServerController.wsServerStatus.onlineUsers;
-  console.log(connectedUsers);
-  res.json(connectedUsers);
+  return onlineUserAPI(req, res, next)
 });
 
 module.exports = { server };

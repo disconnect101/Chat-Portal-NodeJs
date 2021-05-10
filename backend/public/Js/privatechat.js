@@ -45,7 +45,7 @@ socket.on("newUserConnected", ({ username, socketid }) => {
     username +
     "</button></li>";
   document.getElementById("private-users").innerHTML += html;
-  //}
+  //}*/
 });
 
 function onUserSelected(private_username) {
@@ -65,5 +65,5 @@ function sendMessage() {
 
 socket.on("new_message", (data) => {
   console.log(data);
-  chatArea.append(data.message);
+  chatArea.append(data.sender + "said : \n" + data.message);
 });

@@ -148,6 +148,7 @@ class PrivateChatWebSocketController extends GeneralWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
     super(socket, wsServerController, namespaceObject);
     this.socket.on("send_message", this.sendMessageHandler);
+    this.socket.on("disconnect", this.disconnectHandler);
   }
 
   sendMessageHandler = (data) => {
@@ -155,6 +156,18 @@ class PrivateChatWebSocketController extends GeneralWebSocketController {
       data.receiver
     ];
     this.namespaceObject.to(socketId).emit("new_message", data);
+  };
+
+  disconnectHandler = () => {
+    const username = Object.keys(
+      this.wsServerController.wsServerStatus.onlineUsers
+    ).find(
+      (key) =>
+        this.wsServerController.wsServerStatus.onlineUsers[key] ===
+        this.socket.id
+    );
+    delete this.wsServerController.wsServerStatus.onlineUsers[username];
+    //this.namespaceObject.emit("user_disconnect", private_username);
   };
 }
 /*
