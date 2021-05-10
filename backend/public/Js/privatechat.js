@@ -33,7 +33,7 @@ socket.on("connect", () => {
 
 var count = -1;
 socket.on("user_connected", (private_username) => {
-  var html = "";
+  /*var html = "";
   // count++;
   // for (var i = 0; i <= count; i++) {
   html +=
@@ -41,7 +41,7 @@ socket.on("user_connected", (private_username) => {
     private_username +
     "</button></li>";
   document.getElementById("private-users").innerHTML += html;
-  //}
+  //}*/
 });
 
 function onUserSelected(private_username) {
@@ -61,5 +61,5 @@ function sendMessage() {
 
 socket.on("new_message", (data) => {
   console.log(data);
-  chatArea.append(data.message);
+  chatArea.append(data.sender + "said : \n" + data.message);
 });

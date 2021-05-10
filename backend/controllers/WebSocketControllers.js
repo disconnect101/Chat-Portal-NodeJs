@@ -132,11 +132,12 @@ class PrivateChatWebSocketController {
     //console.log("User connected", this.socket.id);
     this.socket.on("user_connected", this.userConnectionHandler);
     this.socket.on("send_message", this.sendMessageHandler);
+    this.socket.on('disconnect', this.disconnectHandler);
   }
 
   userConnectionHandler = (private_username) => {
     //attach incoming listerner for new user
-    const socket_id = this.socket.id;
+    //const socket_id = this.socket.id;
     //const data = { private_username, socket_id };
     this.wsServerController.wsServerStatus.onlineUsers[
       private_username
@@ -150,6 +151,12 @@ class PrivateChatWebSocketController {
     ];
     console.log(socketId);
     this.namespaceObject.to(socketId).emit("new_message", data);
+  };
+
+  disconnectHandler = () => {
+    const username = Object.keys(this.wsServerController.wsServerStatus.onlineUsers).find(key => this.wsServerController.wsServerStatus.onlineUsers[key] === this.socket.id);
+    delete this.wsServerController.wsServerStatus.onlineUsers[username];
+    //this.namespaceObject.emit("user_disconnect", private_username);
   };
 }
 /*
