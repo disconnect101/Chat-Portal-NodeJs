@@ -1,26 +1,40 @@
 const fs = require("fs");
 var path = require("path");
 
-/*class GeneralWebSocketController {
+////
+////
+////
+class GeneralWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
     this.namespaceObject = namespaceObject;
     this.socket = socket;
     this.wsServerController = wsServerController;
+    this.username = socket.username;
 
-    this.socket.on("newUserConnected", this.newUserConnected);
+    this.newUserConnected();
   }
 
-  newUserConnected = () => {
+  newUserConnected = (socket, namespaceObject) => {
+    this.wsServerController.wsServerStatus.onlineUsers[
+      this.username
+    ] = this.socket.id;
 
-  }
-}*/
+    this.socket.broadcast.emit("newUserConnected", {
+      username: this.username,
+      socketid: this.socket.id,
+    });
+  };
 
-class GroupChatWebSocketController {
+  getUsername = () => this.username;
+}
+
+////
+////
+////
+class GroupChatWebSocketController extends GeneralWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
-    //console.log("hello grp chat")
-    this.namespaceObject = namespaceObject;
-    this.socket = socket;
-    this.wsServerController = wsServerController;
+    super(socket, wsServerController, namespaceObject);
+
     this.socket.on("joinRoom", this.joinRoomHandler);
     this.socket.on("chatMessage", this.chatMessageHandler);
     this.socket.on("disconnect", this.disconnectHandler);
@@ -101,10 +115,13 @@ class GroupChatWebSocketController {
   };
 }
 
-class FileTranferWebSocketController {
+////
+////
+////
+class FileTranferWebSocketController extends GeneralWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
-    this.socket = socket;
-    this.wsServerController = wsServerController;
+    super(socket, wsServerController, namespaceObject);
+
     this.wsServerController
       .wsStreamer(this.socket)
       .on("fileData", this.fileReceiver);
@@ -124,31 +141,19 @@ class FileTranferWebSocketController {
   };
 }
 
-class PrivateChatWebSocketController {
+////
+////
+////
+class PrivateChatWebSocketController extends GeneralWebSocketController {
   constructor(socket, wsServerController, namespaceObject) {
-    this.namespaceObject = namespaceObject;
-    this.socket = socket;
-    this.wsServerController = wsServerController;
-    //console.log("User connected", this.socket.id);
-    this.socket.on("user_connected", this.userConnectionHandler);
+    super(socket, wsServerController, namespaceObject);
     this.socket.on("send_message", this.sendMessageHandler);
   }
-
-  userConnectionHandler = (private_username) => {
-    //attach incoming listerner for new user
-    const socket_id = this.socket.id;
-    //const data = { private_username, socket_id };
-    this.wsServerController.wsServerStatus.onlineUsers[
-      private_username
-    ] = this.socket.id;
-    this.namespaceObject.emit("user_connected", private_username);
-  };
 
   sendMessageHandler = (data) => {
     const socketId = this.wsServerController.wsServerStatus.onlineUsers[
       data.receiver
     ];
-    console.log(socketId);
     this.namespaceObject.to(socketId).emit("new_message", data);
   };
 }

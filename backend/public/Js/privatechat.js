@@ -1,5 +1,11 @@
-const socket = io("/privatechat");
+const socket = io("/privatechat", { autoConnect: false });
 const chatArea = document.getElementById("private-chatarea");
+
+const { username } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+socket.auth = { username };
+socket.connect();
 
 let connectedUsers = {};
 window.onload = () => {
@@ -9,8 +15,10 @@ window.onload = () => {
       console.log(data);
       connectedUsers = data;
       let html = "";
+      document.getElementById("private-users").innerHTML = html;
       for (user in connectedUsers) {
-        html +=
+        if (user === username) continue;
+        html =
           "<li><button onclick='onUserSelected(this.innerHTML);'>" +
           user +
           "</button></li>";
@@ -18,10 +26,6 @@ window.onload = () => {
       }
     });
 };
-
-const { username } = Qs.parse(location.search, {
-  ignoreQueryPrefix: true,
-});
 
 var private_username = username;
 var receiver = "";
@@ -32,13 +36,13 @@ socket.on("connect", () => {
 });
 
 var count = -1;
-socket.on("user_connected", (private_username) => {
+socket.on("newUserConnected", ({ username, socketid }) => {
   var html = "";
   // count++;
   // for (var i = 0; i <= count; i++) {
   html +=
     "<li><button onclick='onUserSelected(this.innerHTML);'>" +
-    private_username +
+    username +
     "</button></li>";
   document.getElementById("private-users").innerHTML += html;
   //}

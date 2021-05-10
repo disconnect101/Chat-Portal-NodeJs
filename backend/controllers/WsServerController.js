@@ -17,6 +17,9 @@ class WsServerController {
     this.wsServerConfig.routes.push({ path, WebSocketController });
   }
 
+  ////
+  //// SERVER START FUNCTION
+  ////
   start = () => {
     ////custom websocket controllers register for their respective paths
     this.wsServerConfig.routes.forEach(({ path, WebSocketController }) => {
@@ -30,9 +33,15 @@ class WsServerController {
     console.log("WebSocket Server Started...");
   };
 
+  ////
+  ////  ROUTE REGISTERING FUNCTION
+  ////
   registerWebSocketController = (path, WebSocketController) => {
     const namespaceObject = this.wsServer.of(path);
     this.wsServerConfig.namespaceObjects.push({ path, namespaceObject });
+
+    namespaceObject.use(this.getUsername);
+
     namespaceObject.on("connection", (socket) => {
       console.log("connection received for path:" + path);
       const webSocketController = new WebSocketController(
@@ -41,6 +50,18 @@ class WsServerController {
         namespaceObject
       );
     });
+  };
+
+  ////
+  //// MIDDLEWARES
+  ////
+  getUsername = (socket, next) => {
+    const username = socket.handshake.auth.username;
+    if (!username) {
+      return next(new Error("invalid username"));
+    }
+    socket.username = username;
+    next();
   };
 }
 
