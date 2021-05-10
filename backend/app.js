@@ -7,7 +7,7 @@ const cors = require("cors");
 
 const WsServerController = require("./controllers/WsServerController");
 const webSocketControllers = require("./controllers/WebSocketControllers");
-const { onlineUserAPI } = require("./api/onlineusersapi")
+const { onlineUserAPI } = require("./api/onlineusersapi");
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +17,7 @@ const io = socketio(server);
 app.use(cors());
 
 const wsServerController = new WsServerController(io, socketioStreamer);
+
 wsServerController.route(
   "/groupchat",
   webSocketControllers.GroupChatWebSocketController
@@ -34,8 +35,9 @@ wsServerController.start();
 
 //set static folder
 app.use("/", express.static(path.join(__dirname, "public")));
-app.use("/api/getconnectedusers", (req, res, next) => {
-  return onlineUserAPI(req, res, next)
+app.get("/api/getconnectedusers", (req, res, next) => {
+  return onlineUserAPI(req, res, wsServerController);
+  next();
 });
 
 module.exports = { server };

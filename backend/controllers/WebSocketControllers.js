@@ -11,7 +11,7 @@ class GeneralWebSocketController {
     this.wsServerController = wsServerController;
     this.username = socket.username;
 
-    this.newUserConnected();
+    this.newUserConnected(this.socket, this.namespaceObject);
   }
 
   newUserConnected = (socket, namespaceObject) => {
