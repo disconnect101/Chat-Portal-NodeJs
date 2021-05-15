@@ -4,21 +4,53 @@ const messageInput = document.getElementById("messageInput");
 const chatarea = document.getElementById("chatarea");
 const roomName = document.getElementById("room-name");
 
+//var roomname;
+
 //get username and room from URL
-const { username, roomname } = Qs.parse(location.search, {
+const { username } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
 const socket = io("/groupchat");
 
-//join chat room
+document.getElementById("createroom").addEventListener('keypress', function (e) {
 
-socket.emit("joinRoom", { username, roomname });
+  if (e.key === 'Enter') {
+    console.log(e.currentTarget.value);
+    onRoomSelected(e.currentTarget.value);
+  }
+})
 
-//get room
-socket.on("roomUsers", ({ roomname }) => {
-  roomName.append("Room Name: " + roomname + "\n");
-});
+let activeRoomname = {};
+window.onload = () => {
+  fetch("http://localhost:5000/api/getactiverooms")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      activeRoomname = data;
+      let html = "";
+      document.getElementById("roomnamelist").innerHTML = html;
+      for (room in activeRoomname) {
+        html =
+          "<li><button onclick='onRoomSelected(this.innerHTML);'>" +
+          room +
+          "</button></li>";
+        document.getElementById("roomnamelist").innerHTML += html;
+      }
+    });
+};
+
+function onRoomSelected(roomname) {
+  //join chat room
+  socket.emit("joinRoom", { username, roomname });
+
+  //get room
+  socket.on("roomUsers", ({ roomname }) => {
+    roomName.append("Room Name: " + roomname + "\n");
+  });
+}
+
+
 
 //message from server
 socket.on("message", (message) => {

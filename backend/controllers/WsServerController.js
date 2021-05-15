@@ -7,8 +7,7 @@ class WsServerController {
     this.wsServerStatus = {
       users: [],
       onlineUsers: {},
-      namesUsed: [],
-      clients: [],
+      activeRooms: [],
     };
     this.wsServerConfig = { routes: [], namespaceObjects: [] };
   }

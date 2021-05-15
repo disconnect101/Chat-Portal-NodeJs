@@ -12,6 +12,7 @@ class GeneralWebSocketController {
     this.username = socket.username;
 
     this.newUserConnected(this.socket, this.namespaceObject);
+    //this.activeRoom();
   }
 
   newUserConnected = (socket, namespaceObject) => {
@@ -26,6 +27,10 @@ class GeneralWebSocketController {
   };
 
   getUsername = () => this.username;
+
+  // activeRoom = () => {
+  //   return new Set(this.wsServerController.wsServerStatus.activeRooms).length;
+  // }
 }
 
 ////
@@ -38,13 +43,31 @@ class GroupChatWebSocketController extends GeneralWebSocketController {
     this.socket.on("joinRoom", this.joinRoomHandler);
     this.socket.on("chatMessage", this.chatMessageHandler);
     this.socket.on("disconnect", this.disconnectHandler);
+    //this.socket.on("createRoom", this.createRoomHandler)
     this.botName = "MyChat Bot";
   }
+
+  // createRoomHandler = (roomname) => {
+  //   console.log("inside createroomhandler");
+  //   this.namespaceObject.adapter.on("create-room", (roomname) => {
+  //     console.log("room ${roomname} was created");
+  //   });
+  // }
 
   joinRoomHandler = ({ username, roomname }) => {
     //console.log("here");
     const user = this.userJoin(this.socket.id, username, roomname);
+
+    // if (this.wsServerController.wsServerStatus.activeRooms.includes(roomname) === false) {
+    //   this.wsServerController.wsServerStatus.activeRooms.push(roomname);
+    // }
+
     this.socket.join(user.roomname);
+
+    this.namespaceObject.adapter.on("create-room", (roomname) => {
+      console.log("room ${roomname} was created");
+    });
+
     //welcome current user
     this.socket.emit(
       "message",
@@ -61,6 +84,9 @@ class GroupChatWebSocketController extends GeneralWebSocketController {
     this.namespaceObject.to(user.roomname).emit("roomUsers", {
       roomname: user.roomname,
     });
+
+
+
   };
 
   chatMessageHandler = (message) => {
@@ -103,6 +129,16 @@ class GroupChatWebSocketController extends GeneralWebSocketController {
     );
 
     if (index !== -1) {
+      // var rooms = Object.keys(io.sockets.adapter.sids[id]);
+      // var count = 0;
+      // for (var room in rooms) {
+      //   count++;
+      //   if (count === 1) {
+      //     continue;
+      //   }
+      //   this.wsServerController.wsServerStatus.activeRooms.remove(room);
+      // }
+
       return this.wsServerController.wsServerStatus.users.splice(index, 1)[0];
     }
   };
